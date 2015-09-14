@@ -121,7 +121,7 @@ def tnpOnOniaSkim(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         process.TagAndProbeTrig.replace(process.tpPairsTrig, process.tagMuonsSglTrgMCMatch * process.probeMuonsMCMatch * process.tpPairsTrig)
     
     # output
-    process.load('Configuration.EventContent.EventContent_cff')
+    #process.load('Configuration.EventContent.EventContent_cff')
     process.load("Configuration.EventContent.EventContentHeavyIons_cff")
 
 
