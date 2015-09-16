@@ -11,15 +11,17 @@ process = cms.Process("Onia2MuMuPATtnp")
 
 # setup any defaults you want
 # secondaryInputFiles = 'file:onia2MuMuPAT_regit_1000_1_yLu.root'
-inputFiles = 'file:onia2MuMuPAT_MC_10_1_2nS.root'
+inputFiles = 'file:onia2MuMuPAT_MC_31_1_WYy.root'
 # inputFiles = '/store/user/tdahms/HIDiMuon/Onia2MuMu_RegIT-Skim_v3/16e111b93439e581c6bdad4acd2262ef/onia2MuMuPAT_regit_1000_1_yLu.root'
 # inputFiles = 'file:tnp_regit_1000_1_fEL.root'
 outputFile = 'tnp_pp_regit.root'
 
 maxEvents = -1 # -1 means all events
 
-# get and parse the command line arguments
+# skip events when an object is missing
+process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
 
+# get and parse the command line arguments
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -52,7 +54,7 @@ process.source = cms.Source("PoolSource",
 
 #### call the onia2MuMuPAT
 from HiSkim.HiOnia2MuMu.onia2MuMuPAT_TnPonOniaSkim_pp_cff import *
-tnpOnOniaSkim(process, GlobalTag=process.GlobalTag.globaltag, MC=True, HLT="HLT", Filter=True)
+tnpOnOniaSkim(process, GlobalTag=process.GlobalTag.globaltag, MC=False, HLT="HLT", Filter=True)
 
 process.source.fileNames = cms.untracked.vstring(inputFiles)
 # process.source.secondaryFileNames = cms.untracked.vstring(secondaryInputFiles)

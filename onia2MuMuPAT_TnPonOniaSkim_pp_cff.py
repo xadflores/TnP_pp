@@ -75,6 +75,7 @@ def tnpOnOniaSkim(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     
     ##### the Tag and Probe sequences: make the probe, the tag-probe pairs, and make sure have at least 1 per/event
     process.tnpSta = cms.Sequence(
+    #    process.patMuonsWithTriggerSta *
         process.probeMuonsSta *
         process.tpPairsSta *
         process.tpPairsStaFilter
@@ -111,14 +112,14 @@ def tnpOnOniaSkim(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
         process.tnpTrig
     )
    
-    if MC:
-        process.tagMuonsSglTrgMCMatch = process.muonMatch.clone(src = "tagMuonsSglTrg") # tag
-        process.probeMuonsStaMCMatch  = process.muonMatch.clone(src = "probeMuonsSta") # inner tracking eff
-        process.probeMuonsTrkMCMatch  = process.muonMatch.clone(src = "probeMuonsTrk") # Muon reco and ID eff
-        process.probeMuonsMCMatch     = process.muonMatch.clone(src = "probeMuons") # muon trigger eff
-        process.TagAndProbeSta.replace(process.tpPairsSta, process.tagMuonsSglTrgMCMatch * process.probeMuonsStaMCMatch * process.tpPairsSta)
-        process.TagAndProbeMuID.replace(process.tpPairsTracks, process.tagMuonsSglTrgMCMatch * process.probeMuonsTrkMCMatch * process.tpPairsTracks)
-        process.TagAndProbeTrig.replace(process.tpPairsTrig, process.tagMuonsSglTrgMCMatch * process.probeMuonsMCMatch * process.tpPairsTrig)
+#    if MC:
+#        process.tagMuonsSglTrgMCMatch = process.muonMatch.clone(src = "tagMuonsSglTrg") # tag
+#        process.probeMuonsStaMCMatch  = process.muonMatch.clone(src = "probeMuonsSta") # inner tracking eff
+#        process.probeMuonsTrkMCMatch  = process.muonMatch.clone(src = "probeMuonsTrk") # Muon reco and ID eff
+#        process.probeMuonsMCMatch     = process.muonMatch.clone(src = "probeMuons") # muon trigger eff
+#        process.TagAndProbeSta.replace(process.tpPairsSta, process.tagMuonsSglTrgMCMatch * process.probeMuonsStaMCMatch * process.tpPairsSta)
+#        process.TagAndProbeMuID.replace(process.tpPairsTracks, process.tagMuonsSglTrgMCMatch * process.probeMuonsTrkMCMatch * process.tpPairsTracks)
+#        process.TagAndProbeTrig.replace(process.tpPairsTrig, process.tagMuonsSglTrgMCMatch * process.probeMuonsMCMatch * process.tpPairsTrig)
     
     # output
     #process.load('Configuration.EventContent.EventContent_cff')
@@ -133,3 +134,4 @@ def tnpOnOniaSkim(process, GlobalTag, MC=False, HLT='HLT', Filter=True):
     )
 
     process.e = cms.EndPath(process.outTnP)
+

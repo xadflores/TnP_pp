@@ -14,12 +14,14 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag= 'GR_P_V43D::All'
+#process.GlobalTag.globaltag= 'GR_P_V43D::All' #Data
+process.GlobalTag.globaltag= 'STARTHI53_V28::All'
+
 
 process.source = cms.Source("PoolSource", 
 #    duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
     fileNames = cms.untracked.vstring(
-       "file:tnp_pp_regit_100.root",
+       "file:tnp_pp_regit_1.root",
     ),
 )
 process.maxEvents = cms.untracked.PSet(
@@ -292,5 +294,5 @@ process.tagAndProbe = cms.Path(
     process.tnpSimpleSequence
 )
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("tnp_Regit_pp_All.root"))
+process.TFileService = cms.Service("TFileService", fileName = cms.string("tnp_Regit_ppMC_All.root"))
 
