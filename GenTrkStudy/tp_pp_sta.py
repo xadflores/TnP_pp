@@ -12,7 +12,7 @@ process.source = cms.Source("PoolSource",
 
 inputFiles='file:1466B54D-CC77-E211-8057-0025901D624E.root'
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )    
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
 
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
@@ -27,10 +27,11 @@ process.GlobalTag.globaltag= 'GR_P_V43D::All' #Data
 
 IN_ACCEPTANCE = '( (abs(eta)<1.0 && pt>=3.4) || (1.0<=abs(eta)<1.5 && pt>=5.8-2.4*abs(eta)) || (1.5<=abs(eta)<2.4 && pt>=3.3667-7.0/9.0*abs(eta)) )'
 # several selection cuts
-TRACK_CUTS    = "track.numberOfValidHits > 10 && track.normalizedChi2 < 4 && track.hitPattern.pixelLayersWithMeasurement > 0 && muonID('TrackerMuonArbitrated')"
+TRACK_CUTS    = "track.numberOfValidHits > 10 && track.normalizedChi2 < 4 && track.hitPattern.pixelLayersWithMeasurement > 0"
 GLB_CUTS      = "isGlobalMuon && globalTrack.normalizedChi2 < 20"
 QUALITY_CUTS  =  "(" + GLB_CUTS + ' && ' + TRACK_CUTS + ")"
 DXYZ_CUTS = "abs(dB) < 3 && abs(track.dz) < 15"
+TAG_CUTS = "isTrackerMuon && muonID('TrackerMuonArbitrated')"
 
 staOnlyVariables = cms.PSet(
 staQoverP      = cms.string("? outerTrack.isNull() ? 0 : outerTrack.qoverp"),
@@ -78,7 +79,7 @@ process.load("MuonAnalysis.TagAndProbe.common_modules_cff")
 
 process.tagMuonsSglTrg = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("patMuonsWithTrigger"),
-    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + '&&' + DXYZ_CUTS + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu12_v*').empty())"),
+    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + '&&' + DXYZ_CUTS + '&&' + TAG_CUTS + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu12_v*').empty())"),
 )
 
 process.probeMuonsGenTrk = cms.EDFilter("PATMuonSelector",

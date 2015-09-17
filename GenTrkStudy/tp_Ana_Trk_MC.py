@@ -12,11 +12,11 @@ PDFName = "cbGausPlusPoly"
 
 process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # IO parameters:
-    InputFileNames = cms.vstring("~/work/public/TnP_2015/TP_Prod_Samples/Data_pp_GtrkSTA/tnp_pp_GenTrkSTA_MC_15092015.root"),
+    InputFileNames = cms.vstring("../tnp_Prod_MC_pp_GTrkSTA_17092015.root"),
     InputDirectoryName = cms.string("tpTree"),
     InputTreeName = cms.string("fitter_tree"),
     #numbrer of CPUs to use for fitting
-    OutputFileName = cms.string("tnp_Ana_pp_GenTrkSTA_RD_All_16092015.root"),
+    OutputFileName = cms.string("tnp_Ana_pp_GenTrkSTA_MC_All_17092015.root"),
     NumCPU = cms.uint32(1),
     # specifies wether to save the RooWorkspace containing the data for each bin and
     # the pdf object with the initial and final state snapshots
