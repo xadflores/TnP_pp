@@ -152,4 +152,4 @@ process.tagAndProbe = cms.Path(
 
 
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("tnp_pp_GenTrkSTA_Data.root"))
+process.TFileService = cms.Service("TFileService", fileName = cms.string("tnp_pp_GenTrkSTA_MC.root"))
