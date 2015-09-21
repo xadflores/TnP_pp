@@ -10,7 +10,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(),
 )
 
-inputFiles='file:1466B54D-CC77-E211-8057-0025901D624E.root'
+inputFiles='file:F00776F3-3075-E211-AD4E-0025901D5E10.root'
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
 
@@ -79,7 +79,7 @@ process.load("MuonAnalysis.TagAndProbe.common_modules_cff")
 
 process.tagMuonsSglTrg = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("patMuonsWithTrigger"),
-    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + '&&' + DXYZ_CUTS + '&&' + TAG_CUTS + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu12_v*').empty())"),
+    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + '&&' + DXYZ_CUTS + '&&' + TAG_CUTS + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu3L3Filtered3').empty()) || (!triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu7L3Filtered7').empty()) || (!triggerObjectMatchesByPath('HLT_PAMu12_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu12L3Filtered12').empty())"),
 )
 
 process.probeMuonsGenTrk = cms.EDFilter("PATMuonSelector",
@@ -111,6 +111,7 @@ process.tpTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
      ),
      flags = cms.PSet(
      isSTA = cms.string("isStandAloneMuon"),
+     staValidStations = cms.string("? outerTrack.isNull() ? -1 : outerTrack.hitPattern.muonStationsWithValidHits()"),
      outerValidHits  = cms.string("? outerTrack.isNull() ? 0 : outerTrack.numberOfValidHits > 0"),
      ),
      tagVariables = cms.PSet(
@@ -128,6 +129,7 @@ process.tpTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
      pairFlags = cms.PSet(),
      isMC           = cms.bool(False),
      addRunLumiInfo = cms.bool(True),
+     allProbes     = cms.InputTag("probeMuonsGenTrk"),
     # addCentralityInfo = cms.bool(False) 
 )
 

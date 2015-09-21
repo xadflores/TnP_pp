@@ -8,15 +8,15 @@ process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )    
 
-PDFName = "cbGausPlusPoly"
+PDFName = "cbPlusPoly"
 
 process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # IO parameters:
-    InputFileNames = cms.vstring("../tnp_Prod_MC_pp_GTrkSTA_17092015.root"),
+    InputFileNames = cms.vstring("../Producer/tnp_Prod_pp_GTrkSTA_Data_21092015.root"),
     InputDirectoryName = cms.string("tpTree"),
     InputTreeName = cms.string("fitter_tree"),
     #numbrer of CPUs to use for fitting
-    OutputFileName = cms.string("tnp_Ana_pp_GenTrkSTA_MC_All_17092015.root"),
+    OutputFileName = cms.string("tnp_Ana_pp_GenTrkSTA_Data_AllvEta_21092015.root"),
     NumCPU = cms.uint32(1),
     # specifies wether to save the RooWorkspace containing the data for each bin and
     # the pdf object with the initial and final state snapshots
@@ -40,6 +40,7 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     Categories = cms.PSet(
         #mcTrue = cms.vstring("MC true", "dummy[true=1,false=0]"),
         isSTA = cms.vstring("isSTA", "dummy[true=1,false=0]"),
+        outerValidHits = cms.vstring("valid hits","dummy[true=1,false=0]"),
     ),
 
     # defines all the PDFs that will be available for the efficiency calculations; uses RooFit's "factory" syntax;
@@ -73,10 +74,10 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
           "signalFractionInPassing[0.9]"
       ),
        cbPlusPoly = cms.vstring(
-        "CBShape::signal(mass, mean[3.1,3.0,3.2], sigma[0.02, 0.01, 0.1], alpha[2.0, 1.0, 10.0], n[4, 0.5, 100.])",
+        "CBShape::signal(mass, mean[3.1,3.0,3.2], sigma[0.02, 0.01, 0.1], alpha[1.5, 1.0, 10.0], n[4, 0.5, 100.])",
         #"CBShape::signal(mass, mean[3.1,3.0,3.2], sigma[0.02, 0.01, 0.1], alpha[1.0, 0.5, 4.0], n[1, 0.5, 100.])",
-        "Chebychev::backgroundPass(mass, {cPass[0,-1.0,1.0], cPass2[0,-1.0,1.0]})",
-        "Chebychev::backgroundFail(mass, {cFail[0,-1.0,1.0], cFail2[0,-1.0,1.0]})",
+        "Chebychev::backgroundPass(mass, {cPass[0,-.5,.5], cPass2[0,-.5,.5]})",
+        "Chebychev::backgroundFail(mass, {cFail[0,-.5,.5], cFail2[0,-.5,.5]})",
         #"Chebychev::backgroundPass(mass, {cPass[0,-0.5,0.5], cPass2[0,-0.5,0.5]})",
         #"Chebychev::backgroundFail(mass, {cFail[0,-0.5,0.5], cFail2[0,-0.5,0.5]})",
         "efficiency[0.9,0,1]",
@@ -99,17 +100,45 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # there will be a separate output directory for each calculation that includes a simultaneous fit, side band subtraction and counting. 
     Efficiencies = cms.PSet(
         #the name of the parameter set becomes the name of the directory
-        PassingSTA_pt = cms.PSet(
-            EfficiencyCategoryAndState = cms.vstring("isSTA","true"),
+        PassingSTA_pt1 = cms.PSet(
+            EfficiencyCategoryAndState = cms.vstring("isSTA","true","outerValidHits","true"),
             UnbinnedVariables = cms.vstring("mass"),
             BinnedVariables = cms.PSet(
-                pt = cms.vdouble(1.5, 3.5, 7., 10.5, 30.0),
-                eta = cms.vdouble(-2.4,2.4),
+              pt = cms.vdouble(2.5, 3.5, 4, 4.5, 5, 5.5, 6, 7, 8.5, 30),
+              abseta = cms.vdouble(0, 1.2), 
             ),
             BinToPDFmap = cms.vstring(PDFName)
         ),
+         PassingSTA_pt2 = cms.PSet(
+            EfficiencyCategoryAndState = cms.vstring("isSTA","true","outerValidHits","true"),
+            UnbinnedVariables = cms.vstring("mass"),
+            BinnedVariables = cms.PSet(
+               pt = cms.vdouble(2.5, 3, 3.5, 4, 4.5, 5.5, 30),
+               abseta = cms.vdouble(1.2, 1.6),    
+        ),
+            BinToPDFmap = cms.vstring(PDFName)
+        ),
+         PassingSTA_pt3 = cms.PSet(
+            EfficiencyCategoryAndState = cms.vstring("isSTA","true","outerValidHits","true"),
+            UnbinnedVariables = cms.vstring("mass"),
+            BinnedVariables = cms.PSet(
+               pt = cms.vdouble(1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5.5, 30),
+               abseta = cms.vdouble(1.6, 2.1),
+            ),
+            BinToPDFmap = cms.vstring(PDFName)
+        ),
+       PassingSTA_pt4 = cms.PSet(
+            EfficiencyCategoryAndState = cms.vstring("isSTA","true","outerValidHits","true"),
+            UnbinnedVariables = cms.vstring("mass"),
+            BinnedVariables = cms.PSet(
+              pt = cms.vdouble(1.5, 2, 2.5, 3, 3.5, 4, 5, 30),
+              abseta = cms.vdouble(2.1, 2.4),
+            ),
+            BinToPDFmap = cms.vstring(PDFName)
+        ),
+
         PassingSTA_1bin = cms.PSet(
-          EfficiencyCategoryAndState = cms.vstring("isSTA","true"),
+            EfficiencyCategoryAndState = cms.vstring("isSTA","true","outerValidHits","true"),
             UnbinnedVariables = cms.vstring("mass"),
             BinnedVariables = cms.PSet(
                 pt = cms.vdouble(1.5,30.),
@@ -118,7 +147,7 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             BinToPDFmap = cms.vstring(PDFName)
         ),
         PassingSTA_eta = cms.PSet(
-            EfficiencyCategoryAndState = cms.vstring("isSTA","true"),
+            EfficiencyCategoryAndState = cms.vstring("isSTA","true","outerValidHits","true"),
             UnbinnedVariables = cms.vstring("mass"),
             BinnedVariables = cms.PSet(
                eta = cms.vdouble(-2.4,-1.6,-1.2,-0.9,0.9,1.2,1.6,2.4),
@@ -126,14 +155,15 @@ process.TagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
             ),
             BinToPDFmap = cms.vstring(PDFName)
         ),
-    #    PassingGlb_absEta = cms.PSet(
-    #        EfficiencyCategoryAndState = cms.vstring("isGlb","true"),
-    #        UnbinnedVariables = cms.vstring("mass"),
-    #        BinnedVariables = cms.PSet(
-    #            abseta = cms.vdouble(0.,0.8,1.6,2.4),
-    #        ),
-    #        BinToPDFmap = cms.vstring(PDFName)
-    #    ),
+        PassingSTA_abseta = cms.PSet(
+            EfficiencyCategoryAndState = cms.vstring("isSTA","true","outerValidHits","true"),
+            UnbinnedVariables = cms.vstring("mass"),
+            BinnedVariables = cms.PSet(
+                abseta = cms.vdouble(0.,1.2,1.6,2.1,2.4),
+                pt = cms.vdouble(1.5,30),
+            ),
+            BinToPDFmap = cms.vstring(PDFName)
+        ),
 
 
 

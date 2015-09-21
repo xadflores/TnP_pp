@@ -10,7 +10,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(),
 )
 
-inputFiles='file:045D8C44-4945-E311-9CDA-00266CF27130.root'
+inputFiles='file:F00776F3-3075-E211-AD4E-0025901D5E10.root'
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )    
 
@@ -79,12 +79,12 @@ process.load("MuonAnalysis.TagAndProbe.common_modules_cff")
 
 process.tagMuonsSglTrg = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("patMuonsWithTrigger"),
-    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + '&&' + DXYZ_CUTS + '&&' + TAG_CUTS + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() || !triggerObjectMatchesByPath('HLT_PAMu12_v*').empty())"),
+    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + ' && ' + DXYZ_CUTS + ' && ' + TAG_CUTS + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu3L3Filtered3').empty()) || (!triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu7L3Filtered7').empty()) || (!triggerObjectMatchesByPath('HLT_PAMu12_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu12L3Filtered12').empty())"),
 )
 
 process.probeMuonsGenTrk = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("patMuonsWithTrigger"),
-    cut = cms.string(TRACK_CUTS + '&&' + IN_ACCEPTANCE),
+    cut = cms.string(TRACK_CUTS + ' && ' + IN_ACCEPTANCE),
 )
 
 process.tpPairs = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -128,6 +128,7 @@ process.tpTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
      pairFlags = cms.PSet(),
      isMC           = cms.bool(False),
      addRunLumiInfo = cms.bool(True),
+     allProbes     = cms.InputTag("probeMuonsGenTrk"),
     # addCentralityInfo = cms.bool(False) 
 )
 
@@ -151,4 +152,4 @@ process.tagAndProbe = cms.Path(
 
 
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("tnp_pp_GenTrkSTA_MC.root"))
+process.TFileService = cms.Service("TFileService", fileName = cms.string("tnp_pp_GenTrkSTA_Data.root"))
