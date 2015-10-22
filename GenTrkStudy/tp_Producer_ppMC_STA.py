@@ -39,6 +39,33 @@ staQoverPerror = cms.string("? outerTrack.isNull() ? 0 : outerTrack.qoverpError"
 staValidStations = cms.string("? outerTrack.isNull() ? -1 : outerTrack.hitPattern.muonStationsWithValidHits()"),
 staNumValidHits = cms.string("? outerTrack.isNull() ? -1 : outerTrack.hitPattern.numberOfValidMuonHits()"),
 )
+
+TrigTagFlags = cms.PSet(
+    HLTL2Mu3 = cms.string("!triggerObjectMatchesByPath('HLT_HIL2Mu3_NHitQ_v*').empty() && !triggerObjectMatchesByFilter('hltHIL2Mu3NHitL2Filtered').empty()"),
+    HLTL2Mu7 = cms.string("!triggerObjectMatchesByPath('HLT_HIL2Mu7_v*').empty() && !triggerObjectMatchesByFilter('hltHIL2Mu7L2Filtered').empty()"),
+    HLTL2Mu15= cms.string("!triggerObjectMatchesByPath('HLT_HIL2Mu15_v*').empty() && !triggerObjectMatchesByFilter('hltHIL2Mu15L2Filtered').empty()"),
+)
+
+TrackQualityVariables = cms.PSet(
+    dB          = cms.string("dB"),
+    tkValidHits = cms.string("? track.isNull ? 0 : track.numberOfValidHits"),
+    tkValidPixelHits = cms.string("? track.isNull ? 0 : track.hitPattern.numberOfValidPixelHits"),
+    tkPixelLay  = cms.string("? track.isNull ? 0 : track.hitPattern.pixelLayersWithMeasurement"),
+    tkExpHitIn  = cms.string("? track.isNull ? 0 : track.trackerExpectedHitsInner.numberOfLostHits"),
+    tkExpHitOut = cms.string("? track.isNull ? 0 : track.trackerExpectedHitsOuter.numberOfLostHits"),
+    tkHitFract  = cms.string("? track.isNull ? 0 : track.hitPattern.numberOfValidHits/(track.hitPattern.numberOfValidHits+track.hitPattern.numberOfLostHits+track.trackerExpectedHitsInner.numberOfLostHits+track.trackerExpectedHitsOuter.numberOfLostHits)"),
+    tkChi2 = cms.string("? track.isNull ? -1 : track.normalizedChi2"),
+    tkPtError = cms.string("? track.isNull ? -1 : track.ptError"),
+    tkSigmaPtOverPt = cms.string("? track.isNull ? -1 : track.ptError/track.pt"),
+)
+GlobalTrackQualityVariables = cms.PSet(
+    glbChi2 = cms.string("? globalTrack.isNull ? -1 : globalTrack.normalizedChi2"),
+    glbPtError = cms.string("? globalTrack.isNull ? -1 : globalTrack.ptError"),
+    glbSigmaPtOverPt = cms.string("? globalTrack.isNull ? -1 : globalTrack.ptError/globalTrack.pt"),
+)
+
+
+
    
 process.source.fileNames = cms.untracked.vstring(inputFiles)
 
@@ -114,11 +141,17 @@ process.tpTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
      outerValidHits  = cms.string("? outerTrack.isNull() ? 0 : outerTrack.numberOfValidHits > 0"),
      ),
      tagVariables = cms.PSet(
+     TrackQualityVariables,
+     GlobalTrackQualityVariables,
      pt  = cms.string("pt"),
      eta = cms.string("eta"),
      abseta = cms.string("abs(eta)"),
+     l2dr  = cms.string("? triggerObjectMatchesByCollection('hltL2MuonCandidates').empty() ? 999 : "+
+                            " deltaR( eta, phi, " +
+                            "         triggerObjectMatchesByCollection('hltL2MuonCandidates').at(0).eta, "+
+                            "         triggerObjectMatchesByCollection('hltL2MuonCandidates').at(0).phi ) "),
      ),
-     tagFlags     = cms.PSet(
+     tagFlags     = cms.PSet(TrigTagFlags,
      ),
      pairVariables = cms.PSet(
      pt  = cms.string("pt"),
@@ -127,7 +160,7 @@ process.tpTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
      ),
      pairFlags = cms.PSet(),
      isMC           = cms.bool(False),
-     addRunLumiInfo = cms.bool(True),
+     #addRunLumiInfo = cms.bool(True),
      allProbes     = cms.InputTag("probeMuonsGenTrk"),
     # addCentralityInfo = cms.bool(False) 
 )

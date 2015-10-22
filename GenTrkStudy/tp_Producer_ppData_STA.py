@@ -26,6 +26,7 @@ process.load("HeavyIonsAnalysis.Configuration.collisionEventSelection_cff")
 process.GlobalTag.globaltag= 'GR_P_V43D::All' #Data
 
 IN_ACCEPTANCE = '( (abs(eta)<1.0 && pt>=3.4) || (1.0<=abs(eta)<1.5 && pt>=5.8-2.4*abs(eta)) || (1.5<=abs(eta)<2.4 && pt>=3.3667-7.0/9.0*abs(eta)) )'
+
 # several selection cuts
 TRACK_CUTS    = "track.numberOfValidHits > 10 && track.normalizedChi2 < 4 && track.hitPattern.pixelLayersWithMeasurement > 0"
 GLB_CUTS      = "isGlobalMuon && globalTrack.normalizedChi2 < 20"
@@ -39,6 +40,34 @@ staQoverPerror = cms.string("? outerTrack.isNull() ? 0 : outerTrack.qoverpError"
 staValidStations = cms.string("? outerTrack.isNull() ? -1 : outerTrack.hitPattern.muonStationsWithValidHits()"),
 staNumValidHits = cms.string("? outerTrack.isNull() ? -1 : outerTrack.hitPattern.numberOfValidMuonHits()"),
 )
+
+TrigTagFlags = cms.PSet(
+    HLTL2Mu3 = cms.string("!triggerObjectMatchesByPath('HLT_HIL2Mu3_NHitQ_v*').empty() && !triggerObjectMatchesByFilter('hltHIL2Mu3NHitL2Filtered').empty()"),
+    HLTL2Mu7 = cms.string("!triggerObjectMatchesByPath('HLT_HIL2Mu7_v*').empty() && !triggerObjectMatchesByFilter('hltHIL2Mu7L2Filtered').empty()"),
+    HLTL2Mu15= cms.string("!triggerObjectMatchesByPath('HLT_HIL2Mu15_v*').empty() && !triggerObjectMatchesByFilter('hltHIL2Mu15L2Filtered').empty()"),
+)
+
+TrackQualityVariables = cms.PSet(
+    dB          = cms.string("dB"),
+    tkValidHits = cms.string("? track.isNull ? 0 : track.numberOfValidHits"),
+    tkValidPixelHits = cms.string("? track.isNull ? 0 : track.hitPattern.numberOfValidPixelHits"),
+    tkPixelLay  = cms.string("? track.isNull ? 0 : track.hitPattern.pixelLayersWithMeasurement"),
+    tkExpHitIn  = cms.string("? track.isNull ? 0 : track.trackerExpectedHitsInner.numberOfLostHits"),
+    tkExpHitOut = cms.string("? track.isNull ? 0 : track.trackerExpectedHitsOuter.numberOfLostHits"),
+    tkHitFract  = cms.string("? track.isNull ? 0 : track.hitPattern.numberOfValidHits/(track.hitPattern.numberOfValidHits+track.hitPattern.numberOfLostHits+track.trackerExpectedHitsInner.numberOfLostHits+track.trackerExpectedHitsOuter.numberOfLostHits)"),
+    tkChi2 = cms.string("? track.isNull ? -1 : track.normalizedChi2"),
+    tkPtError = cms.string("? track.isNull ? -1 : track.ptError"),
+    tkSigmaPtOverPt = cms.string("? track.isNull ? -1 : track.ptError/track.pt"),
+)
+GlobalTrackQualityVariables = cms.PSet(
+    glbChi2 = cms.string("? globalTrack.isNull ? -1 : globalTrack.normalizedChi2"),
+    glbPtError = cms.string("? globalTrack.isNull ? -1 : globalTrack.ptError"),
+    glbSigmaPtOverPt = cms.string("? globalTrack.isNull ? -1 : globalTrack.ptError/globalTrack.pt"),
+)
+
+
+
+
    
 process.source.fileNames = cms.untracked.vstring(inputFiles)
 
@@ -79,12 +108,12 @@ process.load("MuonAnalysis.TagAndProbe.common_modules_cff")
 
 process.tagMuonsSglTrg = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("patMuonsWithTrigger"),
-    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + '&&' + DXYZ_CUTS + '&&' + TAG_CUTS + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu3L3Filtered3').empty()) || (!triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu7L3Filtered7').empty()) || (!triggerObjectMatchesByPath('HLT_PAMu12_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu12L3Filtered12').empty())"),
+    cut = cms.string(QUALITY_CUTS + ' && ' + IN_ACCEPTANCE + ' && ' + DXYZ_CUTS + ' && ' + TAG_CUTS + " && (!triggerObjectMatchesByPath('HLT_PAMu3_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu3L3Filtered3').empty()) || (!triggerObjectMatchesByPath('HLT_PAMu7_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu7L3Filtered7').empty()) || (!triggerObjectMatchesByPath('HLT_PAMu12_v*').empty() && !triggerObjectMatchesByFilter('hltL3fL2sMu12L3Filtered12').empty())"),
 )
 
 process.probeMuonsGenTrk = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("patMuonsWithTrigger"),
-    cut = cms.string(TRACK_CUTS + '&&' + IN_ACCEPTANCE),
+    cut = cms.string(TRACK_CUTS + ' && ' + IN_ACCEPTANCE),
 )
 
 process.tpPairs = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -111,15 +140,22 @@ process.tpTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
      ),
      flags = cms.PSet(
      isSTA = cms.string("isStandAloneMuon"),
-     staValidStations = cms.string("? outerTrack.isNull() ? -1 : outerTrack.hitPattern.muonStationsWithValidHits()"),
      outerValidHits  = cms.string("? outerTrack.isNull() ? 0 : outerTrack.numberOfValidHits > 0"),
      ),
      tagVariables = cms.PSet(
+     TrackQualityVariables,
+     GlobalTrackQualityVariables,
      pt  = cms.string("pt"),
      eta = cms.string("eta"),
      abseta = cms.string("abs(eta)"),
+     l2dr  = cms.string("? triggerObjectMatchesByCollection('hltL2MuonCandidates').empty() ? 999 : "+
+                            " deltaR( eta, phi, " +
+                            "         triggerObjectMatchesByCollection('hltL2MuonCandidates').at(0).eta, "+
+                            "         triggerObjectMatchesByCollection('hltL2MuonCandidates').at(0).phi ) "),
+
      ),
      tagFlags     = cms.PSet(
+     TrigTagFlags,
      ),
      pairVariables = cms.PSet(
      pt  = cms.string("pt"),
@@ -128,9 +164,9 @@ process.tpTree = cms.EDAnalyzer("TagProbeFitTreeProducer",
      ),
      pairFlags = cms.PSet(),
      isMC           = cms.bool(False),
-     addRunLumiInfo = cms.bool(True),
+     #addRunLumiInfo = cms.bool(True),
      allProbes     = cms.InputTag("probeMuonsGenTrk"),
-    # addCentralityInfo = cms.bool(False) 
+     # addCentralityInfo = cms.bool(False) 
 )
 
 
